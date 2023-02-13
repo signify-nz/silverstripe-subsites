@@ -1,9 +1,7 @@
 # Subsites Module
 
-[![Build Status](https://api.travis-ci.com/silverstripe/silverstripe-subsites.svg?branch=2)](https://travis-ci.com/silverstripe/silverstripe-subsites)
-[![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/silverstripe/silverstripe-subsites/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/silverstripe/silverstripe-subsites/?branch=master)
-[![codecov](https://codecov.io/gh/silverstripe/silverstripe-subsites/branch/master/graph/badge.svg)](https://codecov.io/gh/silverstripe/silverstripe-subsites)
-[![SilverStripe supported module](https://img.shields.io/badge/silverstripe-supported-0071C4.svg)](https://www.silverstripe.org/software/addons/silverstripe-commercially-supported-module-list/)
+[![CI](https://github.com/silverstripe/silverstripe-subsites/actions/workflows/ci.yml/badge.svg)](https://github.com/silverstripe/silverstripe-subsites/actions/workflows/ci.yml)
+[![Silverstripe supported module](https://img.shields.io/badge/silverstripe-supported-0071C4.svg)](https://www.silverstripe.org/software/addons/silverstripe-commercially-supported-module-list/)
 
 ## Introduction
 
@@ -11,7 +9,7 @@ The subsites module provides a convenient way of running multiple websites from 
 sharing users, content, and assets between them - the sites will be managed from a single CMS.
 
 A useful way to think of its use is where you have a business with a global headquarters and four branches in various
-countries. The subsites module allows the five offices to use a single SilverStripe installation, and have information
+countries. The subsites module allows the five offices to use a single Silverstripe installation, and have information
 from the headquarters flow down into the branches. The branches can hold information that is individual and the website
 templates can also be different.
 
@@ -61,7 +59,7 @@ If more isolation of code, security, or performance is needed, then consider run
 
 ## Requirements
 
-*  SilverStripe 4.x
+*  Silverstripe 4.x
 
 ## Installation
 
@@ -71,7 +69,7 @@ If more isolation of code, security, or performance is needed, then consider run
 *  Once you've created a subsite, you'll see a "Create Subsite Domain" button, hit that button to enter a domain or subdomain for your subsite. This will determine the URL of your website.  For example, if your site is running on `http://localhost/mysite`, and you set the subdomain to "subsite", then your subsite will be accessible on `http://subsite.localhost/mysite`
 *  Go to the "Pages" section of the CMS.  In the top-left above the menu, you'll see a dropdown listing the two subsites - "Main site" is the original site that you had before you installed the subsites module.  Select your new subsite, and the site content tree will be changed.  It should be empty at this stage.
 *  Add a page - change its title to "Home", and its URL Segment will be changed to "home".  Save the page.
-*  Update your DNS and, if necessary, your webserver configuration, so that your subdomain will point to the SilverStripe installation on your webserver.  Visit this new subdomain.  You should see the new subsite homepage.
+*  Update your DNS and, if necessary, your webserver configuration, so that your subdomain will point to the Silverstripe installation on your webserver.  Visit this new subdomain.  You should see the new subsite homepage.
 
 ## Usage
 
@@ -110,7 +108,7 @@ theme in the dropdown.  Now, this subsite will use a different theme from the ma
 
 #### Cascading themes
 
-In SilverStripe 4 themes will resolve theme files by looking through a list of themes (see the documentation on 
+In Silverstripe 4 themes will resolve theme files by looking through a list of themes (see the documentation on 
 [creating your own theme](https://docs.silverstripe.org/en/4/developer_guides/templates/themes/#developing-your-own-theme)).
 Subsites will inherit this configuration for the order of themes. Choosing a theme for a Subsite will set the list of 
 themes to that chosen theme, and all themes that are defined below the chosen theme in priority. For example, with a
@@ -220,6 +218,14 @@ or by defining the subsiteCMSShowInMenu function in your admin:
 		return true;
 	}
 
+### Using Subsites in combination with Fluent
+
+When using Subsites in combination with Fluent module, the Subsites module sets the i18n locale to the language defined in the current Subsite. When this behaviour is not desired and you need to use the locale in FluentState use the following setting in your yml config file:
+
+```yaml
+    SilverStripe\Subsites\Extensions\SiteTreeSubsites:
+      ignore_subsite_locale: true
+```
 
 ### Public display of a subsite
 

@@ -13,6 +13,7 @@ use SilverStripe\Core\Convert;
 use SilverStripe\Core\Injector\Injector;
 use SilverStripe\ErrorPage\ErrorPage;
 use SilverStripe\Forms\FieldList;
+use SilverStripe\i18n\i18n;
 use SilverStripe\Security\Member;
 use SilverStripe\SiteConfig\SiteConfig;
 use SilverStripe\Subsites\Extensions\SiteTreeSubsites;
@@ -42,7 +43,7 @@ class SiteTreeSubsitesTest extends BaseSubsiteTest
         ],
     ];
 
-    protected function setUp()
+    protected function setUp(): void
     {
         // We have our own home page fixtures, prevent the default one being created in this test suite.
         Config::modify()->set(SiteTree::class, 'create_default_pages', false);
@@ -191,6 +192,22 @@ class SiteTreeSubsitesTest extends BaseSubsiteTest
         $this->assertEquals($p2->ID, SiteTree::get_by_link('test-page')->ID);
     }
 
+    public function testIgnoreSubsiteLocale()
+    {
+
+        $ignore_subsite_locale = Config::inst()->set(SiteTreeSubsites::class, 'ignore_subsite_locale', true);
+
+        $subsitePage = $this->objFromFixture(Page::class, 'subsite_locale_about');
+        Subsite::changeSubsite($subsitePage->SubsiteID);
+        $controller = ModelAsController::controller_for($subsitePage);
+
+        $i18n_locale_before = i18n::get_locale();
+        SiteTree::singleton()->extend('contentcontrollerInit', $controller);
+        $i18n_locale_after = i18n::get_locale();
+
+        $this->assertEquals($i18n_locale_before, $i18n_locale_after);
+    }
+
     public function testPageTypesBlacklistInClassDropdown()
     {
         $this->logInAs('editor');
@@ -274,7 +291,7 @@ class SiteTreeSubsitesTest extends BaseSubsiteTest
 
         Subsite::changeSubsite($s1);
         $cmsmain = CMSMain::create();
-        $hints = json_decode($cmsmain->SiteTreeHints(), true);
+        $hints = json_decode($cmsmain->SiteTreeHints() ?? '', true);
         $classes = $hints['Root']['disallowedChildren'];
         $this->assertContains(ErrorPage::class, $classes);
         $this->assertContains(TestClassA::class, $classes);
@@ -285,7 +302,7 @@ class SiteTreeSubsitesTest extends BaseSubsiteTest
         if ($cmsmain->hasMethod('getHintsCache')) {
             $cmsmain->getHintsCache()->clear();
         }
-        $hints = json_decode($cmsmain->SiteTreeHints(), true);
+        $hints = json_decode($cmsmain->SiteTreeHints() ?? '', true);
 
         $classes = $hints['Root']['disallowedChildren'];
         $this->assertNotContains(ErrorPage::class, $classes);

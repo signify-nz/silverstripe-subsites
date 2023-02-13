@@ -26,7 +26,7 @@ class SubsiteTest extends BaseSubsiteTest
      */
     protected $origServer = [];
 
-    protected function setUp()
+    protected function setUp(): void
     {
         parent::setUp();
 
@@ -38,7 +38,7 @@ class SubsiteTest extends BaseSubsiteTest
         $this->origServer = $_SERVER;
     }
 
-    protected function tearDown()
+    protected function tearDown(): void
     {
         $_SERVER = $this->origServer;
 
@@ -360,7 +360,8 @@ class SubsiteTest extends BaseSubsiteTest
             ['Title' => 'Test 3'],
             ['Title' => 'Test Non-SSL'],
             ['Title' => 'Test SSL'],
-            ['Title' => 'Test Vagrant VM on port 8080']
+            ['Title' => 'Test Vagrant VM on port 8080'],
+            ['Title' => 'Locale subsite'],
         ], $subsites, 'Lists all subsites');
     }
 
@@ -398,6 +399,7 @@ class SubsiteTest extends BaseSubsiteTest
         $adminSiteTitles = $adminSites->column('Title');
         sort($adminSiteTitles);
         $this->assertEquals([
+            'Locale subsite',
             'Subsite1 Template',
             'Subsite2 Template',
             'Template',
@@ -407,7 +409,7 @@ class SubsiteTest extends BaseSubsiteTest
             'Test Non-SSL',
             'Test SSL',
             'Test Vagrant VM on port 8080'
-        ], array_values($adminSiteTitles));
+        ], array_values($adminSiteTitles ?? []));
 
         $member2Sites = Subsite::accessible_sites(
             'CMS_ACCESS_CMSMain',
@@ -417,7 +419,7 @@ class SubsiteTest extends BaseSubsiteTest
         );
         $member2SiteTitles = $member2Sites->column('Title');
         sort($member2SiteTitles);
-        $this->assertEquals('Subsite1 Template', $member2SiteTitles[0], 'Member can get to subsite via a group role');
+        $this->assertEquals('Subsite1 Template', $member2SiteTitles[1], 'Member can get to subsite via a group role');
     }
 
     public function testhasMainSitePermission()

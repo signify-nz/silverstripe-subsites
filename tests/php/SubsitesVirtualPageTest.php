@@ -21,7 +21,7 @@ class SubsitesVirtualPageTest extends BaseSubsiteTest
         'SubsitesVirtualPageTest.yml',
     ];
 
-    protected function setUp()
+    protected function setUp(): void
     {
         parent::setUp();
 
@@ -35,15 +35,15 @@ class SubsitesVirtualPageTest extends BaseSubsiteTest
         $page = $this->objFromFixture(SiteTree::class, 'page1');
         $fromPath = __DIR__ . '/testscript-test-file.pdf';
         $destPath = TestAssetStore::getLocalPath($file);
-        Filesystem::makeFolder(dirname($destPath));
-        copy($fromPath, $destPath);
+        Filesystem::makeFolder(dirname($destPath ?? ''));
+        copy($fromPath ?? '', $destPath ?? '');
 
         // Hack in site link tracking after the fact
         $page->Content = '<p><img src="' . $file->getURL() . '" data-fileid="' . $file->ID . '" /></p>';
         $page->write();
     }
 
-    public function tearDown()
+    protected function tearDown(): void
     {
         TestAssetStore::reset();
         parent::tearDown();
