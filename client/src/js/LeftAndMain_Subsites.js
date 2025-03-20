@@ -56,7 +56,12 @@
       },
 
       showHideSubsiteList() {
-        $('#Form_ItemEditForm_Subsites').parent().parent().css('display', ($('#Form_ItemEditForm_AccessAllSubsites_1').is(':checked') ? 'none' : ''));
+      },
+
+      showHideSubsiteList: function () {
+        var display = $('#Form_ItemEditForm_AccessAllSubsites_1').is(':checked') ? 'none' : '';
+        $('#Form_ItemEditForm_Subsites').parent().parent().css('display', display);
+        $('#Form_ItemEditForm_AccessMainSite').parent().parent().parent().css('display', display);
       }
     });
 
