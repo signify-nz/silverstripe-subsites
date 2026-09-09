@@ -32,6 +32,7 @@ use SilverStripe\Subsites\Service\ThemeResolver;
 use SilverStripe\Subsites\State\SubsiteState;
 use SilverStripe\Versioned\Versioned;
 use SilverStripe\Core\Validation\ValidationResult;
+use SilverStripe\Core\ClassInfo;
 use UnexpectedValueException;
 
 /**
@@ -753,7 +754,7 @@ class Subsite extends DataObject
     {
         $pageTypeMap = [];
 
-        $pageTypes = SiteTree::page_type_classes();
+        $pageTypes = ClassInfo::getValidSubClasses(SiteTree::class);
         foreach ($pageTypes as $pageType) {
             $pageTypeMap[$pageType] = singleton($pageType)->i18n_singular_name();
         }

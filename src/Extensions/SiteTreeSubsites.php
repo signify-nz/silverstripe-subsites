@@ -105,8 +105,6 @@ class SiteTreeSubsites extends Extension
         if (!$this->owner->ID && !$this->owner->SubsiteID) {
             $this->owner->SubsiteID = SubsiteState::singleton()->getSubsiteId();
         }
-
-        parent::onBeforeWrite();
     }
 
     public function updateCMSFields(FieldList $fields)
