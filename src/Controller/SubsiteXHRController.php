@@ -6,6 +6,7 @@ use SilverStripe\Admin\LeftAndMain;
 use SilverStripe\Security\Member;
 use SilverStripe\Security\Permission;
 use SilverStripe\Subsites\Model\Subsite;
+use SilverStripe\Control\PjaxResponseNegotiator;
 
 /**
  * Section-agnostic PJAX controller.
@@ -46,7 +47,7 @@ class SubsiteXHRController extends LeftAndMain
         ]);
     }
 
-    public function getResponseNegotiator()
+    public function getResponseNegotiator(): PjaxResponseNegotiator
     {
         $negotiator = parent::getResponseNegotiator();
 

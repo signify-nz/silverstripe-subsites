@@ -17,11 +17,11 @@ use SilverStripe\Forms\FieldList;
 use SilverStripe\Forms\FormAction;
 use SilverStripe\Forms\ToggleCompositeField;
 use SilverStripe\i18n\i18n;
-use SilverStripe\ORM\ArrayList;
-use SilverStripe\ORM\DataExtension;
+use SilverStripe\Model\List\ArrayList;
+use SilverStripe\Core\Extension;
 use SilverStripe\ORM\DataObject;
 use SilverStripe\ORM\DataQuery;
-use SilverStripe\ORM\Map;
+use SilverStripe\Model\List\Map;
 use SilverStripe\ORM\Queries\SQLSelect;
 use SilverStripe\Security\Member;
 use SilverStripe\Security\Security;
@@ -35,7 +35,7 @@ use SilverStripe\VersionedAdmin\Controllers\HistoryViewerController;
 /**
  * Extension for the SiteTree object to add subsites support
  */
-class SiteTreeSubsites extends DataExtension
+class SiteTreeSubsites extends Extension
 {
     private static $has_one = [
         'Subsite' => Subsite::class, // The subsite that this page belongs to
@@ -59,7 +59,7 @@ class SiteTreeSubsites extends DataExtension
      * @param SQLSelect $query
      * @param DataQuery $dataQuery
      */
-    public function augmentSQL(SQLSelect $query, DataQuery $dataQuery = null)
+    public function augmentSQL(SQLSelect $query, ?DataQuery $dataQuery = null)
     {
         if (Subsite::$disable_subsite_filter) {
             return;

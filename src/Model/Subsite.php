@@ -18,12 +18,12 @@ use SilverStripe\Forms\HiddenField;
 use SilverStripe\Forms\ToggleCompositeField;
 use SilverStripe\i18n\Data\Intl\IntlLocales;
 use SilverStripe\i18n\i18n;
-use SilverStripe\ORM\ArrayLib;
-use SilverStripe\ORM\ArrayList;
+use SilverStripe\Core\ArrayLib;
+use SilverStripe\Model\List\ArrayList;
 use SilverStripe\ORM\DataList;
 use SilverStripe\ORM\DataObject;
 use SilverStripe\ORM\DB;
-use SilverStripe\ORM\SS_List;
+use SilverStripe\Model\List\SS_List;
 use SilverStripe\Security\Group;
 use SilverStripe\Security\Member;
 use SilverStripe\Security\Permission;
@@ -31,6 +31,7 @@ use SilverStripe\Security\Security;
 use SilverStripe\Subsites\Service\ThemeResolver;
 use SilverStripe\Subsites\State\SubsiteState;
 use SilverStripe\Versioned\Versioned;
+use SilverStripe\Core\Validation\ValidationResult;
 use UnexpectedValueException;
 
 /**
@@ -281,7 +282,7 @@ class Subsite extends DataObject
 
             /** @skipUpgrade */
             $domainTableName = $schema->tableName(SubsiteDomain::class);
-            
+
             if (!DB::get_schema()->hasTable($domainTableName)) {
                 // Table hasn't been created yet. Might be a dev/build, skip.
                 return 0;
@@ -484,8 +485,8 @@ class Subsite extends DataObject
             )
             ->innerJoin(
                 'Permission',
-                "\"Group\".\"ID\"=\"Permission\".\"GroupID\" 
-                AND \"Permission\".\"Code\" 
+                "\"Group\".\"ID\"=\"Permission\".\"GroupID\"
+                AND \"Permission\".\"Code\"
                 IN ($SQL_codes, 'CMS_ACCESS_LeftAndMain', 'ADMIN')"
             );
 
@@ -510,8 +511,8 @@ class Subsite extends DataObject
             ->innerJoin('PermissionRole', '"Group_Roles"."PermissionRoleID"="PermissionRole"."ID"')
             ->innerJoin(
                 'PermissionRoleCode',
-                "\"PermissionRole\".\"ID\"=\"PermissionRoleCode\".\"RoleID\" 
-                AND \"PermissionRoleCode\".\"Code\" 
+                "\"PermissionRole\".\"ID\"=\"PermissionRoleCode\".\"RoleID\"
+                AND \"PermissionRoleCode\".\"Code\"
                 IN ($SQL_codes, 'CMS_ACCESS_LeftAndMain', 'ADMIN')"
             );
 
@@ -822,9 +823,9 @@ class Subsite extends DataObject
 
     /**
      *
-     * @return \SilverStripe\ORM\ValidationResult
+     * @return \SilverStripe\Core\Validation\ValidationResult
      */
-    public function validate()
+    public function validate(): ValidationResult
     {
         $result = parent::validate();
         if (!$this->Title) {
@@ -972,13 +973,10 @@ JS;
 
     /**
      * Duplicate this subsite
-     * @param bool $doWrite
-     * @param string $manyMany
-     * @return DataObject
      */
-    public function duplicate($doWrite = true, $manyMany = 'many_many')
+    public function duplicate(bool $doWrite = true, ?array $relations = null): static
     {
-        $duplicate = parent::duplicate($doWrite);
+        $duplicate = parent::duplicate($doWrite, $relations);
 
         $oldSubsiteID = SubsiteState::singleton()->getSubsiteId();
         self::changeSubsite($this->ID);

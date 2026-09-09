@@ -1,6 +1,7 @@
 <?php
 namespace SilverStripe\Subsites\Forms;
 
+use SilverStripe\Core\Validation\ValidationResult;
 use SilverStripe\Forms\TextField;
 
 /**
@@ -10,22 +11,20 @@ class WildcardDomainField extends TextField
 {
     /**
      * Validate this field as a valid hostname
-     *
-     * @param Validator $validator
-     * @return bool
      */
-    public function validate($validator)
+    public function validate(): ValidationResult
     {
-        if ($this->checkHostname($this->Value())) {
-            return true;
+        $result = parent::validate();
+
+        if (!$this->checkHostname($this->Value())) {
+            $result->addFieldError(
+                $this->getName(),
+                _t('DomainNameField.INVALID_DOMAIN', 'Invalid domain name'),
+                'validation'
+            );
         }
 
-        $validator->validationError(
-            $this->getName(),
-            _t('DomainNameField.INVALID_DOMAIN', 'Invalid domain name'),
-            'validation'
-        );
-        return false;
+        return $result;
     }
 
     /**
