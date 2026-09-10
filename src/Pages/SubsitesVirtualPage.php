@@ -74,7 +74,7 @@ class SubsitesVirtualPage extends VirtualPage
             TreeDropdownField::create('CopyContentFromID', 'Linked Page', SiteTree::class)
         );
 
-        if (Controller::has_curr() && Controller::curr()->getRequest()) {
+        if (Controller::curr()->getRequest()) {
             $subsiteID = (int) Controller::curr()->getRequest()->requestVar('CopyContentFromID_SubsiteID');
             $pageSelectionField->setSubsiteID($subsiteID);
         }

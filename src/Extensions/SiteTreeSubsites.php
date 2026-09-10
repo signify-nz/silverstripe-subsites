@@ -109,6 +109,8 @@ class SiteTreeSubsites extends Extension
 
     public function updateCMSFields(FieldList $fields)
     {
+        $fields->removeByName(['SubsiteID', 'CrossSubsiteLinkTracking']);
+
         $subsites = Subsite::accessible_sites('CMS_ACCESS_CMSMain');
         if ($subsites && $subsites->count()) {
             $subsitesToMap = $subsites->exclude('ID', $this->owner->SubsiteID);
