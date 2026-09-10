@@ -16,7 +16,7 @@ class WildcardDomainField extends TextField
     {
         $result = parent::validate();
 
-        if (!$this->checkHostname($this->Value())) {
+        if (!$this->checkHostname($this->getValue())) {
             $result->addFieldError(
                 $this->getName(),
                 _t('DomainNameField.INVALID_DOMAIN', 'Invalid domain name'),
