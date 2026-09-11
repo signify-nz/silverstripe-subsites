@@ -92,10 +92,9 @@ class SiteTreeSubsitesTest extends BaseSubsiteTest
         // The following assert is breaking in Translatable.
         $this->assertInstanceOf(FieldList::class, singleton(SiteTree::class)->getCMSFields());
         $this->assertInstanceOf(FieldList::class, singleton(SubsitesVirtualPage::class)->getCMSFields());
-        $this->assertTrue(is_array(singleton(SiteTreeSubsites::class)->extraStatics()));
     }
 
-    public function errorPageLocationsProvider()
+    public static function errorPageLocationsProvider()
     {
         return [
             ['domaintest1', '/error-500-one.example.org.html'],
@@ -275,8 +274,8 @@ class SiteTreeSubsitesTest extends BaseSubsiteTest
 
         // Staff is shifted to top level and given a unique url segment
         $domain = $otherSubsite->domain();
-        $this->assertEquals('http://' . $domain . '/staff-2/', $staffPage2->AbsoluteLink());
-        $this->assertEquals('http://' . $domain . '/contact-us-2/', $contactPage2->AbsoluteLink());
+        $this->assertEquals('http://' . $domain . '/staff-2', $staffPage2->AbsoluteLink());
+        $this->assertEquals('http://' . $domain . '/contact-us-2', $contactPage2->AbsoluteLink());
     }
 
     public function testPageTypesBlacklistInCMSMain()
@@ -291,7 +290,7 @@ class SiteTreeSubsitesTest extends BaseSubsiteTest
 
         Subsite::changeSubsite($s1);
         $cmsmain = CMSMain::create();
-        $hints = json_decode($cmsmain->SiteTreeHints() ?? '', true);
+        $hints = json_decode($cmsmain->TreeHints() ?? '', true);
         $classes = $hints['Root']['disallowedChildren'];
         $this->assertContains(ErrorPage::class, $classes);
         $this->assertContains(TestClassA::class, $classes);
@@ -302,7 +301,7 @@ class SiteTreeSubsitesTest extends BaseSubsiteTest
         if ($cmsmain->hasMethod('getHintsCache')) {
             $cmsmain->getHintsCache()->clear();
         }
-        $hints = json_decode($cmsmain->SiteTreeHints() ?? '', true);
+        $hints = json_decode($cmsmain->TreeHints() ?? '', true);
 
         $classes = $hints['Root']['disallowedChildren'];
         $this->assertNotContains(ErrorPage::class, $classes);
@@ -411,7 +410,7 @@ class SiteTreeSubsitesTest extends BaseSubsiteTest
     /**
      * @return array[]
      */
-    public function duplicateToSubsiteProvider()
+    public static function duplicateToSubsiteProvider()
     {
         return [
             [true, 1],
@@ -431,7 +430,9 @@ class SiteTreeSubsitesTest extends BaseSubsiteTest
         SiteTree::singleton()->extend('contentcontrollerInit', $controller);
 
         $secondResolver = $this->createMock(ThemeResolver::class);
-        $secondResolver->expects($this->once())->method('getThemeList');
+        $secondResolver->expects($this->once())
+            ->method('getThemeList')
+            ->willReturn(['subsite-theme', SSViewer::DEFAULT_THEME]);
         Injector::inst()->registerService($secondResolver, ThemeResolver::class);
 
         $subsitePage = $this->objFromFixture(Page::class, 'subsite1_home');
@@ -440,16 +441,16 @@ class SiteTreeSubsitesTest extends BaseSubsiteTest
         SiteTree::singleton()->extend('contentcontrollerInit', $controller);
     }
 
-    public function provideAlternateAbsoluteLink()
+    public static function provideAlternateAbsoluteLink()
     {
         return [
-            ['home', null, 'http://localhost/'],
+            ['home', null, 'http://localhost'],
             ['home', 'myaction', 'http://localhost/home/myaction'],
-            ['contact', null, 'http://localhost/contact-us/'],
+            ['contact', null, 'http://localhost/contact-us'],
             ['contact', 'myaction', 'http://localhost/contact-us/myaction'],
-            ['subsite1_home', null, 'http://subsite1.localhost/'],
+            ['subsite1_home', null, 'http://subsite1.localhost'],
             ['subsite1_home', 'myaction', 'http://subsite1.localhost/home/myaction'],
-            ['subsite1_contactus', null, 'http://subsite1.localhost/contact-us/'],
+            ['subsite1_contactus', null, 'http://subsite1.localhost/contact-us'],
             ['subsite1_contactus', 'myaction', 'http://subsite1.localhost/contact-us/myaction']
         ];
     }

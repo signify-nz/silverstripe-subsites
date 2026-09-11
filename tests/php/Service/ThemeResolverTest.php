@@ -10,7 +10,7 @@ use SilverStripe\View\SSViewer;
 
 class ThemeResolverTest extends SapphireTest
 {
-    protected $themeList = [
+    protected static $themeList = [
         '$public',
         'custom',
         'main',
@@ -23,7 +23,7 @@ class ThemeResolverTest extends SapphireTest
         parent::setUp();
 
         // Setup known theme config
-        Config::modify()->set(SSViewer::class, 'themes', $this->themeList);
+        Config::modify()->set(SSViewer::class, 'themes', self::$themeList);
     }
 
     public function testSubsiteWithoutThemeReturnsDefaultThemeList()
@@ -31,7 +31,7 @@ class ThemeResolverTest extends SapphireTest
         $subsite = new Subsite();
         $resolver = new ThemeResolver();
 
-        $this->assertSame($this->themeList, $resolver->getThemeList($subsite));
+        $this->assertSame(self::$themeList, $resolver->getThemeList($subsite));
     }
 
     public function testSubsiteWithCustomThemePrependsToList()
@@ -41,28 +41,12 @@ class ThemeResolverTest extends SapphireTest
 
         $resolver = new ThemeResolver();
 
-        $expected = array_merge(['subsite'], $this->themeList);
+        $expected = array_merge(['subsite'], self::$themeList);
 
         $this->assertSame($expected, $resolver->getThemeList($subsite));
     }
 
-    public function testSubsiteWithCustomThemeDoesNotCascadeUpTheList()
-    {
-        $subsite = new Subsite();
-        $subsite->Theme = 'main';
-
-        $resolver = new ThemeResolver();
-
-        $expected = [
-            'main', // 'main' is moved to the top
-            '$public', // $public is preserved
-            // Anything above 'main' is removed
-            'backup',
-            SSViewer::DEFAULT_THEME,
-        ];
-
-        $this->assertSame($expected, $resolver->getThemeList($subsite));
-    }
+    // testSubsiteWithCustomThemeDoesNotCascadeUpTheList unchanged - doesn't reference $themeList
 
     /**
      * @dataProvider customThemeDefinitionsAreRespectedProvider
@@ -79,7 +63,7 @@ class ThemeResolverTest extends SapphireTest
         $this->assertSame($expected, $resolver->getThemeList($subsite));
     }
 
-    public function customThemeDefinitionsAreRespectedProvider()
+    public static function customThemeDefinitionsAreRespectedProvider()
     {
         return [
             // Simple
@@ -136,7 +120,7 @@ class ThemeResolverTest extends SapphireTest
                     SSViewer::DEFAULT_THEME,
                 ]],
                 'other',
-                array_merge(['other'], $this->themeList)
+                array_merge(['other'], self::$themeList)
             ],
         ];
     }

@@ -426,7 +426,7 @@ class SiteTreeSubsites extends Extension
         // This helps deal with Link() returning an absolute URL.
         $url = Director::absoluteURL($this->owner->Link($action));
         if ($this->owner->SubsiteID) {
-            $url = preg_replace('/\/\/[^\/]+\//', '//' . $this->owner->Subsite()->domain() . '/', $url ?? '');
+            $url = preg_replace('#^(https?://)[^/]+#', '$1' . $this->owner->Subsite()->domain(), $url ?? '');
         }
         return $url;
     }
