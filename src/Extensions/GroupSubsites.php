@@ -9,7 +9,7 @@ use SilverStripe\Forms\CheckboxSetField;
 use SilverStripe\Forms\FieldList;
 use SilverStripe\Forms\OptionsetField;
 use SilverStripe\Forms\ReadonlyField;
-use SilverStripe\ORM\DataExtension;
+use SilverStripe\Core\Extension;
 use SilverStripe\ORM\DataObject;
 use SilverStripe\ORM\DataQuery;
 use SilverStripe\ORM\DB;
@@ -24,7 +24,7 @@ use SilverStripe\Subsites\State\SubsiteState;
  *
  * @package subsites
  */
-class GroupSubsites extends DataExtension implements PermissionProvider
+class GroupSubsites extends Extension implements PermissionProvider
 {
     private static $db = [
         'AccessMainSite' => 'Boolean',
@@ -156,7 +156,7 @@ class GroupSubsites extends DataExtension implements PermissionProvider
      * @param SQLSelect $query
      * @param DataQuery|null $dataQuery
      */
-    public function augmentSQL(SQLSelect $query, DataQuery $dataQuery = null)
+    public function augmentSQL(SQLSelect $query, ?DataQuery $dataQuery = null)
     {
         if (Subsite::$disable_subsite_filter) {
             return;

@@ -17,11 +17,11 @@ use SilverStripe\Forms\FieldList;
 use SilverStripe\Forms\FormAction;
 use SilverStripe\Forms\ToggleCompositeField;
 use SilverStripe\i18n\i18n;
-use SilverStripe\ORM\ArrayList;
-use SilverStripe\ORM\DataExtension;
+use SilverStripe\Model\List\ArrayList;
+use SilverStripe\Core\Extension;
 use SilverStripe\ORM\DataObject;
 use SilverStripe\ORM\DataQuery;
-use SilverStripe\ORM\Map;
+use SilverStripe\Model\List\Map;
 use SilverStripe\ORM\Queries\SQLSelect;
 use SilverStripe\Security\Member;
 use SilverStripe\Security\Security;
@@ -35,7 +35,7 @@ use SilverStripe\VersionedAdmin\Controllers\HistoryViewerController;
 /**
  * Extension for the SiteTree object to add subsites support
  */
-class SiteTreeSubsites extends DataExtension
+class SiteTreeSubsites extends Extension
 {
     private static $has_one = [
         'Subsite' => Subsite::class, // The subsite that this page belongs to
@@ -59,7 +59,7 @@ class SiteTreeSubsites extends DataExtension
      * @param SQLSelect $query
      * @param DataQuery $dataQuery
      */
-    public function augmentSQL(SQLSelect $query, DataQuery $dataQuery = null)
+    public function augmentSQL(SQLSelect $query, ?DataQuery $dataQuery = null)
     {
         if (Subsite::$disable_subsite_filter) {
             return;
@@ -105,12 +105,12 @@ class SiteTreeSubsites extends DataExtension
         if (!$this->owner->ID && !$this->owner->SubsiteID) {
             $this->owner->SubsiteID = SubsiteState::singleton()->getSubsiteId();
         }
-
-        parent::onBeforeWrite();
     }
 
     public function updateCMSFields(FieldList $fields)
     {
+        $fields->removeByName(['SubsiteID', 'CrossSubsiteLinkTracking']);
+
         $subsites = Subsite::accessible_sites('CMS_ACCESS_CMSMain');
         if ($subsites && $subsites->count()) {
             $subsitesToMap = $subsites->exclude('ID', $this->owner->SubsiteID);
@@ -119,7 +119,7 @@ class SiteTreeSubsites extends DataExtension
             $subsitesMap = new Map(ArrayList::create());
         }
 
-        $viewingPageHistory = Controller::has_curr() && Controller::curr() instanceof HistoryViewerController;
+        $viewingPageHistory = Controller::curr() instanceof HistoryViewerController;
 
         // Master page edit field (only allowed from default subsite to avoid inconsistent relationships)
         $isDefaultSubsite = $this->owner->SubsiteID == 0 || $this->owner->Subsite()->DefaultSite;
@@ -426,7 +426,7 @@ class SiteTreeSubsites extends DataExtension
         // This helps deal with Link() returning an absolute URL.
         $url = Director::absoluteURL($this->owner->Link($action));
         if ($this->owner->SubsiteID) {
-            $url = preg_replace('/\/\/[^\/]+\//', '//' . $this->owner->Subsite()->domain() . '/', $url ?? '');
+            $url = preg_replace('#^(https?://)[^/]+#', '$1' . $this->owner->Subsite()->domain(), $url ?? '');
         }
         return $url;
     }

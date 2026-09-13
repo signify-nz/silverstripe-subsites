@@ -4,15 +4,15 @@ namespace SilverStripe\Subsites\Extensions;
 
 use SilverStripe\Admin\AdminRootController;
 use SilverStripe\Admin\CMSMenu;
-use SilverStripe\Admin\LeftAndMainExtension;
-use SilverStripe\CMS\Controllers\CMSPagesController;
+use SilverStripe\Core\Extension;
+use SilverStripe\CMS\Controllers\CMSMain;
 use SilverStripe\CMS\Model\SiteTree;
 use SilverStripe\CMS\Controllers\CMSPageEditController;
 use SilverStripe\Control\Controller;
 use SilverStripe\Core\Config\Config;
 use SilverStripe\Core\Convert;
 use SilverStripe\Forms\HiddenField;
-use SilverStripe\ORM\ArrayList;
+use SilverStripe\Model\List\ArrayList;
 use SilverStripe\ORM\DataObject;
 use SilverStripe\Security\Member;
 use SilverStripe\Security\Permission;
@@ -20,7 +20,7 @@ use SilverStripe\Security\Security;
 use SilverStripe\Subsites\Controller\SubsiteXHRController;
 use SilverStripe\Subsites\Model\Subsite;
 use SilverStripe\Subsites\State\SubsiteState;
-use SilverStripe\View\ArrayData;
+use SilverStripe\Model\ArrayData;
 use SilverStripe\View\Requirements;
 
 /**
@@ -28,7 +28,7 @@ use SilverStripe\View\Requirements;
  *
  * @package subsites
  */
-class LeftAndMainSubsites extends LeftAndMainExtension
+class LeftAndMainSubsites extends Extension
 {
     private static $allowed_actions = ['CopyToSubsite'];
 
@@ -39,7 +39,7 @@ class LeftAndMainSubsites extends LeftAndMainExtension
      */
     private static $treats_subsite_0_as_global = false;
 
-    public function init()
+    public function onInit()
     {
         Requirements::css('silverstripe/subsites:client/css/LeftAndMain_Subsites.css');
         Requirements::javascript('silverstripe/subsites:client/javascript/LeftAndMain_Subsites.js');
@@ -218,7 +218,7 @@ class LeftAndMainSubsites extends LeftAndMainExtension
      *
      * @param Member $member
      */
-    public function canAccess(Member $member = null)
+    public function canAccess(?Member $member = null)
     {
         if (!$member) {
             $member = Security::getCurrentUser();
@@ -246,7 +246,7 @@ class LeftAndMainSubsites extends LeftAndMainExtension
      *
      * @param Member $member
      */
-    public function alternateAccessCheck(Member $member = null)
+    public function alternateAccessCheck(?Member $member = null)
     {
         return $this->owner->canAccess($member);
     }
@@ -290,13 +290,13 @@ class LeftAndMainSubsites extends LeftAndMainExtension
             $currentController = Controller::curr();
             if ($currentController instanceof CMSPageEditController) {
                 /** @var SiteTree $page */
-                $page = $currentController->currentPage();
+                $page = $currentController->currentRecord();
 
                 // If the page exists but doesn't belong to the requested subsite, redirect to admin/pages which
                 // will show a list of the requested subsite's pages
                 $currentSubsiteId = $request->getVar('SubsiteID');
                 if ($page && (int) $page->SubsiteID !== (int) $currentSubsiteId) {
-                    return $this->owner->redirect(CMSPagesController::singleton()->Link());
+                    return $this->owner->redirect(CMSMain::singleton()->Link());
                 }
 
                 // Page does belong to the current subsite, so remove the query string parameter and refresh the page
@@ -311,7 +311,7 @@ class LeftAndMainSubsites extends LeftAndMainExtension
 
         // Automatically redirect the session to appropriate subsite when requesting a record.
         // This is needed to properly initialise the session in situations where someone opens the CMS via a link.
-        $record = $this->owner->currentPage();
+        $record = $this->owner->currentRecord();
         if ($record
             && isset($record->SubsiteID, $this->owner->urlParams['ID'])
             && is_numeric($record->SubsiteID)

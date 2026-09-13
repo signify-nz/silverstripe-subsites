@@ -6,9 +6,13 @@ use InvalidArgumentException;
 use SilverStripe\CMS\Model\SiteTree;
 use SilverStripe\Dev\BuildTask;
 use SilverStripe\ORM\DataObject;
+use SilverStripe\PolyExecution\PolyOutput;
 use SilverStripe\Subsites\Model\Subsite;
 use SilverStripe\Subsites\Pages\SubsitesVirtualPage;
 use SilverStripe\Versioned\Versioned;
+use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Input\InputOption;
 
 /**
  * Handy alternative to copying pages when creating a subsite through the UI.
@@ -22,14 +26,23 @@ use SilverStripe\Versioned\Versioned;
  */
 class SubsiteCopyPagesTask extends BuildTask
 {
-    protected $title = 'Copy pages to different subsite';
-    protected $description = '';
+    protected static string $commandName = 'SubsiteCopyPagesTask';
 
-    private static $segment = 'SubsiteCopyPagesTask';
+    protected string $title = 'Copy pages to different subsite';
+    protected static string $description = '';
 
-    public function run($request)
+    public function getOptions(): array
     {
-        $subsiteFromId = $request->getVar('from');
+        return [
+            new InputOption('from', null, InputOption::VALUE_REQUIRED, 'ID of the subsite to copy pages from'),
+            new InputOption('to', null, InputOption::VALUE_REQUIRED, 'ID of the subsite to copy pages to'),
+            new InputOption('virtual', null, InputOption::VALUE_NONE, 'Create virtual pages instead of duplicates'),
+        ];
+    }
+
+    protected function execute(InputInterface $input, PolyOutput $output): int
+    {
+        $subsiteFromId = $input->getOption('from');
         if (!is_numeric($subsiteFromId)) {
             throw new InvalidArgumentException('Missing "from" parameter');
         }
@@ -38,7 +51,7 @@ class SubsiteCopyPagesTask extends BuildTask
             throw new InvalidArgumentException('Subsite not found');
         }
 
-        $subsiteToId = $request->getVar('to');
+        $subsiteToId = $input->getOption('to');
         if (!is_numeric($subsiteToId)) {
             throw new InvalidArgumentException('Missing "to" parameter');
         }
@@ -47,7 +60,7 @@ class SubsiteCopyPagesTask extends BuildTask
             throw new InvalidArgumentException('Subsite not found');
         }
 
-        $useVirtualPages = (bool)$request->getVar('virtual');
+        $useVirtualPages = (bool) $input->getOption('virtual');
 
         Subsite::changeSubsite($subsiteFrom);
 
@@ -77,16 +90,13 @@ class SubsiteCopyPagesTask extends BuildTask
                     $childClone->copyVersionToStage('Stage', 'Live');
                     array_push($stack, [$child->ID, $childClone->ID]);
 
-                    $this->log(sprintf('Copied "%s" (#%d, %s)', $child->Title, $child->ID, $child->Link()));
+                    $output->writeln(sprintf('Copied "%s" (#%d, %s)', $child->Title, $child->ID, $child->Link()));
                 }
             }
 
             unset($children);
         }
-    }
 
-    public function log($msg)
-    {
-        echo $msg . "\n";
+        return Command::SUCCESS;
     }
 }

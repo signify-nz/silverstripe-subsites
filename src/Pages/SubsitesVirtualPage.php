@@ -12,12 +12,12 @@ use SilverStripe\Forms\LiteralField;
 use SilverStripe\Forms\TextareaField;
 use SilverStripe\Forms\TextField;
 use SilverStripe\Forms\TreeDropdownField;
-use SilverStripe\ORM\ArrayList;
+use SilverStripe\Model\List\ArrayList;
 use SilverStripe\ORM\DataObject;
 use SilverStripe\Subsites\Forms\SubsitesTreeDropdownField;
 use SilverStripe\Subsites\Model\Subsite;
 use SilverStripe\Subsites\State\SubsiteState;
-use SilverStripe\View\ArrayData;
+use SilverStripe\Model\ArrayData;
 
 class SubsitesVirtualPage extends VirtualPage
 {
@@ -74,7 +74,7 @@ class SubsitesVirtualPage extends VirtualPage
             TreeDropdownField::create('CopyContentFromID', 'Linked Page', SiteTree::class)
         );
 
-        if (Controller::has_curr() && Controller::curr()->getRequest()) {
+        if (Controller::curr()->getRequest()) {
             $subsiteID = (int) Controller::curr()->getRequest()->requestVar('CopyContentFromID_SubsiteID');
             $pageSelectionField->setSubsiteID($subsiteID);
         }

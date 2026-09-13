@@ -3,7 +3,7 @@
 namespace SilverStripe\Subsites\Extensions;
 
 use SilverStripe\Assets\File;
-use SilverStripe\ORM\DataExtension;
+use SilverStripe\Core\Extension;
 use SilverStripe\ORM\DataQuery;
 use SilverStripe\ORM\Queries\SQLSelect;
 use SilverStripe\Security\Permission;
@@ -15,7 +15,7 @@ use SilverStripe\Subsites\State\SubsiteState;
  *
  * @package subsites
  */
-class FileSubsites extends DataExtension
+class FileSubsites extends Extension
 {
     /**
      * If this is set to true, all folders created will be default be considered 'global', unless set otherwise
@@ -47,7 +47,7 @@ class FileSubsites extends DataExtension
      * @param SQLSelect $query
      * @param DataQuery|null $dataQuery
      */
-    public function augmentSQL(SQLSelect $query, DataQuery $dataQuery = null)
+    public function augmentSQL(SQLSelect $query, ?DataQuery $dataQuery = null)
     {
         if (Subsite::$disable_subsite_filter) {
             return;
