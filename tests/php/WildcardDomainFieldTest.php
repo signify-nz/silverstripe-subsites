@@ -47,7 +47,7 @@ class WildcardDomainFieldTest extends SapphireTest
         $this->assertTrue($field->checkHostname($domain), "Validate that {$domain} is a valid domain wildcard");
     }
 
-    public function validDomains()
+    public static function validDomains()
     {
         return [
             ['www.mysite.com'],
@@ -60,7 +60,7 @@ class WildcardDomainFieldTest extends SapphireTest
         ];
     }
 
-    public function invalidDomains()
+    public static function invalidDomains()
     {
         return [
             ['-mysite'],
@@ -77,7 +77,7 @@ class WildcardDomainFieldTest extends SapphireTest
         ];
     }
 
-    public function validWildcards()
+    public static function validWildcards()
     {
         return [
             ['*.mysite.com'],

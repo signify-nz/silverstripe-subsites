@@ -11,6 +11,7 @@ use SilverStripe\Security\Member;
 use SilverStripe\Subsites\Model\Subsite;
 use SilverStripe\Subsites\Model\SubsiteDomain;
 use SilverStripe\Subsites\State\SubsiteState;
+use SilverStripe\Control\Controller;
 use UnexpectedValueException;
 
 class SubsiteTest extends BaseSubsiteTest
@@ -33,7 +34,8 @@ class SubsiteTest extends BaseSubsiteTest
         Config::modify()
             ->set(Director::class, 'alternate_base_url', '/')
             ->set(Subsite::class, 'strict_subdomain_matching', false)
-            ->set(Subsite::class, 'write_hostmap', false);
+            ->set(Subsite::class, 'write_hostmap', false)
+            ->set(Controller::class, 'add_trailing_slash', true);
 
         $this->origServer = $_SERVER;
     }
@@ -325,7 +327,7 @@ class SubsiteTest extends BaseSubsiteTest
         $this->assertSame($expected, $model->absoluteBaseURL());
     }
 
-    public function domainProtocolProvider()
+    public static function domainProtocolProvider()
     {
         return [
             [Subsite::class, 'domaintest2', false, 'http://two.mysite.com/'],
