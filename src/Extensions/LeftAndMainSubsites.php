@@ -20,6 +20,7 @@ use SilverStripe\Security\Security;
 use SilverStripe\Subsites\Controller\SubsiteXHRController;
 use SilverStripe\Subsites\Model\Subsite;
 use SilverStripe\Subsites\State\SubsiteState;
+use SilverStripe\Versioned\Versioned;
 use SilverStripe\Model\ArrayData;
 use SilverStripe\View\Requirements;
 
@@ -196,6 +197,22 @@ class LeftAndMainSubsites extends Extension
     }
 
     /**
+     * Get the current record, read from the draft stage.
+     *
+     * onBeforeInit() runs before AdminController::init() switches the reading mode to draft, so a plain
+     * currentRecord() call here reads from Live. A draft-only page is then not found at all (the deleted-record
+     * fallback in getRecord() is subsite-filtered), which made the subsite checks below treat a draft page from
+     * another subsite as if it belonged to the current one.
+     */
+    protected function currentRecordInDraft(): ?DataObject
+    {
+        return Versioned::withVersionedMode(function () {
+            Versioned::set_stage(Versioned::DRAFT);
+            return $this->owner->currentRecord();
+        });
+    }
+
+    /**
      * Helper for testing if the subsite should be adjusted.
      * @param string $adminClass
      * @param int $recordSubsiteID
@@ -290,7 +307,7 @@ class LeftAndMainSubsites extends Extension
             $currentController = Controller::curr();
             if ($currentController instanceof CMSPageEditController) {
                 /** @var SiteTree $page */
-                $page = $currentController->currentRecord();
+                $page = $this->currentRecordInDraft();
 
                 // If the page exists but doesn't belong to the requested subsite, redirect to admin/pages which
                 // will show a list of the requested subsite's pages
@@ -311,7 +328,7 @@ class LeftAndMainSubsites extends Extension
 
         // Automatically redirect the session to appropriate subsite when requesting a record.
         // This is needed to properly initialise the session in situations where someone opens the CMS via a link.
-        $record = $this->owner->currentRecord();
+        $record = $this->currentRecordInDraft();
         if ($record
             && isset($record->SubsiteID, $this->owner->urlParams['ID'])
             && is_numeric($record->SubsiteID)
